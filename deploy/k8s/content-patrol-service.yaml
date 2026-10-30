@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: content-patrol-service
+  namespace: risk-control
+  labels:
+    app: content-patrol-service
+    patrol-line: content
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: content-patrol-service
+  template:
+    metadata:
+      labels:
+        app: content-patrol-service
+        patrol-line: content
+    spec:
+      containers:
+        - name: content-patrol-service
+          # 替换为你的镜像仓库地址
+          image: registry.example.com/risk/content-patrol-service:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          env:
+            - name: JAVA_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: risk-platform-config
+                  key: JAVA_OPTS
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: content-patrol-service
+  namespace: risk-control
+  labels:
+    app: content-patrol-service
+spec:
+  selector:
+    app: content-patrol-service
+  ports:
+    - name: http
+      port: 8081
+      targetPort: 8081
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: content-patrol-service
+  namespace: risk-control
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: content-patrol-service
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

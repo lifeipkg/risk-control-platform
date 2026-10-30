@@ -1,0 +1,7 @@
+# 构建上下文无关文件
+.git
+.idea
+.vscode
+**/target/
+*.iml
+.tools/

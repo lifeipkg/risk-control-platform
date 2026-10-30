@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fund-patrol-service
+  namespace: risk-control
+  labels:
+    app: fund-patrol-service
+    patrol-line: fund
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fund-patrol-service
+  template:
+    metadata:
+      labels:
+        app: fund-patrol-service
+        patrol-line: fund
+    spec:
+      containers:
+        - name: fund-patrol-service
+          image: registry.example.com/risk/fund-patrol-service:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8084
+          env:
+            - name: JAVA_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: risk-platform-config
+                  key: JAVA_OPTS
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8084
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8084
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fund-patrol-service
+  namespace: risk-control
+  labels:
+    app: fund-patrol-service
+spec:
+  selector:
+    app: fund-patrol-service
+  ports:
+    - name: http
+      port: 8084
+      targetPort: 8084
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: fund-patrol-service
+  namespace: risk-control
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: fund-patrol-service
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

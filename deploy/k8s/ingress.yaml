@@ -1,0 +1,21 @@
+# 平台网关对外入口（按集群 Ingress Controller 调整 class/host）
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: risk-platform-gateway
+  namespace: risk-control
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "5"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: risk-platform.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: platform-gateway
+                port:
+                  number: 8080

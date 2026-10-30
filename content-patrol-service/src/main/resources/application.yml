@@ -1,0 +1,23 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: content-patrol-service
+
+patrol:
+  content:
+    # 主通道阈值：正文 SimHash 汉明距离 <= 3 判重（由标注样本 PR 曲线标定）
+    hamming-threshold: 3
+    # 兜底通道阈值：标题编辑距离 <= 4 判重（短标题 SimHash 不稳定）
+    title-edit-threshold: 4
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

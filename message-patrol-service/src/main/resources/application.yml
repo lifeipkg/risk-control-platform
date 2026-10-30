@@ -1,0 +1,33 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: message-patrol-service
+
+patrol:
+  message:
+    # 飞单/私单诱导关键词库（标准词空间；生产存 MySQL，双缓冲热更新）
+    keywords:
+      - 加微信
+      - 微信号
+      - 微信
+      - 私聊
+      - 转账
+      - 定金
+      - 服装费
+      - 中介费
+    # 白名单：官方渠道话术，命中降级放行
+    whitelist:
+      - 官方微信
+      - 平台客服
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

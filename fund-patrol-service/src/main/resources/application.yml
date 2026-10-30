@@ -1,0 +1,29 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: fund-patrol-service
+
+patrol:
+  fund:
+    # 同银行卡关联账号达到该值 -> BAN（团伙信号）
+    bankcard-gang-count: 3
+    # 同设备账号达到该值 且 金额达到该值 -> INTERCEPT
+    device-gang-count: 3
+    device-gang-amount: 500
+    # 账号年龄 <= 该天数 且 金额达到该值 -> EXTRA_REVIEW（放款前分层）
+    new-account-days: 3
+    new-account-amount: 200
+    # 24h 申请次数达到该值 -> LIMIT
+    apply-limit-count: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

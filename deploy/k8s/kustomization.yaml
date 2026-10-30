@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - 00-namespace.yaml
+  - 01-configmap.yaml
+  - content-patrol-service.yaml
+  - message-patrol-service.yaml
+  - account-patrol-service.yaml
+  - fund-patrol-service.yaml
+  - platform-gateway.yaml
+  - ingress.yaml
+
+# 统一镜像仓库前缀（构建后按需修改 tag）
+images:
+  - name: registry.example.com/risk/content-patrol-service
+    newTag: 1.0.0
+  - name: registry.example.com/risk/message-patrol-service
+    newTag: 1.0.0
+  - name: registry.example.com/risk/account-patrol-service
+    newTag: 1.0.0
+  - name: registry.example.com/risk/fund-patrol-service
+    newTag: 1.0.0
+  - name: registry.example.com/risk/platform-gateway
+    newTag: 1.0.0

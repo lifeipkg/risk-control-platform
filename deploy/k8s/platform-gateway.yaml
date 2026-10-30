@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: platform-gateway
+  namespace: risk-control
+  labels:
+    app: platform-gateway
+    role: gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: platform-gateway
+  template:
+    metadata:
+      labels:
+        app: platform-gateway
+        role: gateway
+    spec:
+      containers:
+        - name: platform-gateway
+          image: registry.example.com/risk/platform-gateway:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: risk-platform-config
+                  key: JAVA_OPTS
+            # 巡查线路由：覆盖本地默认地址为集群内 Service DNS
+            - name: PATROL_ROUTES_ENDPOINTS_CONTENT
+              value: "http://content-patrol-service:8081"
+            - name: PATROL_ROUTES_ENDPOINTS_MESSAGE
+              value: "http://message-patrol-service:8082"
+            - name: PATROL_ROUTES_ENDPOINTS_ACCOUNT
+              value: "http://account-patrol-service:8083"
+            - name: PATROL_ROUTES_ENDPOINTS_FUND
+              value: "http://fund-patrol-service:8084"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: platform-gateway
+  namespace: risk-control
+  labels:
+    app: platform-gateway
+spec:
+  type: ClusterIP
+  selector:
+    app: platform-gateway
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: platform-gateway
+  namespace: risk-control
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: platform-gateway
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

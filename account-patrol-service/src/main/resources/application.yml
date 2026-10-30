@@ -1,0 +1,29 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: account-patrol-service
+
+patrol:
+  account:
+    # 虚拟号段 + 同设备账号数达到该值 -> BAN（确定性设备农场）
+    virtual-segment-device-count: 3
+    # 同设备账号数达到该值 -> BAN
+    same-device-ban-count: 5
+    # 同 IP 24h 注册达到该值 -> INTERCEPT
+    same-ip-intercept-count: 10
+    # 夜间(0-6点) + 同 IP 注册达到该值 -> EXTRA_REVIEW
+    same-ip-night-count: 5
+    # 24h 发帖达到该值 -> LIMIT（养号特征）
+    post-limit-count: 20
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
