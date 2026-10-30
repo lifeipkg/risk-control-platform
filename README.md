@@ -129,6 +129,7 @@ kubectl apply -f deploy/k8s/
 
 ```
 risk-control-platform/
+├── AGENTS.md                   # Agent 协作总纲（裁剪自 agent-workflow-specs，含不适用清单）
 ├── pom.xml                     # 父 POM（Spring Boot 3.3 BOM + 模块管理）
 ├── risk-common/                # 风控底座：统一模型 / Pipeline 抽象 / 规则引擎
 ├── platform-gateway/           # 统一接入网关 (8080)：幂等/状态机/路由/处置/降级
@@ -143,6 +144,7 @@ risk-control-platform/
 ```
 
 > demo 仓库：不含 CI/CD 流水线，构建与部署均为手工执行。
+> Agent 协作约定（worktree 隔离、契约先行、轨道分档、验收证据口径、不适用清单）见 `AGENTS.md`。
 
 ## 7. 生产化演进路线
 
