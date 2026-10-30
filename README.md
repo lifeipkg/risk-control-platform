@@ -3,6 +3,8 @@
 > 蓝领招聘平台的**统一风控中台**。不再按"巡查线"拆仓：平台只有一个，巡查只是内部功能。
 > 本仓库为微服务 Monorepo：**一个统一接入网关 + 四条巡查线服务 + 一个共享风控底座**，
 > 每个服务独立构建镜像、独立部署（Dockerfile + K8s 配置齐备）。
+>
+> **定位：架构演示仓库** —— 用于展示业务建模、服务拆分与部署形态，不含 CI/CD 流水线。
 
 ## 1. 业务全景
 
@@ -138,8 +140,9 @@ risk-control-platform/
 │   ├── docker/                 # （Dockerfile 分布在各模块根，构建上下文为仓库根）
 │   ├── k8s/                    # namespace/configmap/deployment/service/HPA/ingress/kustomize
 │   └── sql/                    # 生产化 MySQL 表结构（基建/消息线/内容线）
-└── .github/workflows/ci.yml    # mvn verify + 五服务镜像矩阵构建
 ```
+
+> demo 仓库：不含 CI/CD 流水线，构建与部署均为手工执行。
 
 ## 7. 生产化演进路线
 
